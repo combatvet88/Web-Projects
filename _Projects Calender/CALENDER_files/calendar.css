@@ -1,0 +1,205 @@
+/* Styles for Calendar Pages */
+
+* {
+  font-family: Helvetica, sans-serif;
+  margin: 0;
+}
+
+body {
+  background-color: lightgray;
+}
+
+a,
+a:visited {
+  color: #aaa;
+  text-decoration: none;
+}
+a:hover {
+  color: #fff;
+}
+
+footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 20px 70px;
+}
+
+footer i {
+  color: #aaa;
+}
+/* Index page */
+
+.index-list {
+  margin: 40px;
+}
+
+.index-list h1 {
+  padding: 20px;
+}
+
+.index-list li {
+  font-size: 24px;
+}
+
+/* Title Section */
+
+#title {
+  text-align: center;
+  margin: 30px auto;
+}
+
+#title h1 {
+    color: #204056;
+    font-size: 48px;
+    margin: 20px 0 0 0;
+}
+
+#title h2 {
+  color: #204056;
+  font-size: 30px;
+  margin-bottom: 30px;
+}
+
+#title h3 {
+  color: #58b;
+  font-size: 36px;
+  padding: 20px 0;
+}
+
+
+/* Calendar Section */
+
+#calendar {
+  width: 90%;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+}
+
+#calendar h4 {
+  margin: 10px 0 20px 0;
+  font-size: 24px;
+  color: #267;
+}
+
+/* Selection */
+.cohort-select h4 {
+  display: inline-block;
+}
+.cohort-select select {
+  font-size: 24px;
+  margin: 0 20px;
+  color: #267;
+  background-color: lightgray;
+  cursor: pointer;
+}
+
+.week.vspacer {
+    margin-top: 12px;
+}
+
+.week {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.week.current {
+  margin: 20px 0;
+}
+
+.note {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 12%;
+  min-height: 100px;
+  margin: 4px 0;
+  background-color: #034;
+}
+.note p {
+  margin-top: 8px;
+  text-align: center;
+  color: #89b;
+}
+
+.past .note {
+  background-color: #012;
+  color: #557;
+}
+
+.days {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 85%;
+  margin: 4px 0;
+}
+
+.day {
+  min-height: 100px;
+  width: 100%;
+  margin: 4px;
+  padding: 6px;
+  font-size: 14px;
+  background-color: #134;
+  color: #8bd;
+}
+
+.past .day.blank,
+.current .day.blank,
+.day.blank {
+  background-color: #bbb;
+}
+
+.reviewable {
+  font-style: italic;
+  color: #cc4;
+  font-size: 12px;
+}
+
+.past .reviewable {
+  color: #882;
+}
+
+.past .day {
+  background-color: #113;
+  color: #579;
+}
+
+.current .day {
+  background-color: #256;
+  color: lightblue;
+}
+
+.today {
+  border: 5px solid #ff0;
+}
+
+.past h5,
+.past h6 {
+  color: #bbb;
+}
+
+.current h5,
+.current h6 {
+  color: white;
+}
+
+h5 {
+  margin: 1px;
+  font-size: 28px;
+  color: #ddd;
+}
+
+h6 {
+  margin: 1px 0 5px 0;
+  font-size: 16px;
+  color: #ddd;
+}
+
+.smaller {
+  font-size: 80%;
+}

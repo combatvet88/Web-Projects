@@ -1,0 +1,98 @@
+/* CTA */
+
+#cta {
+  height: auto;
+  background-image: url('../images/sandals.jpg');
+}
+
+#cta .content {
+  width: 45rem;
+  color: black;
+}
+
+#cta h1 {
+  padding-top: 9.4375rem;
+  padding-bottom: 2.6875rem;
+  font-weight: bold;
+  font-size: 3.125rem;
+  line-height: 1;
+  text-shadow: 1px 1px rgba(120, 73, 225, 0.9);
+}
+
+#cta p {
+  font-size: 1.5rem;
+  line-height: 1.5;
+  padding-bottom: 5rem;
+  text-shadow: 1px 1px rgba(120, 73, 225, 0.9);
+}
+
+#cta .button {
+  display: inline-block;
+  padding: 1.25rem 3.125rem;
+  border-radius: 2px;
+  margin-bottom: 3.125rem;
+  background-color: #f5a623;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1.375rem;
+  font-weight: bold;
+  transition: background-color .25s ease-out;
+}
+
+#cta .button:hover {
+  background-color: #F5C023;
+}
+
+@media only screen and (max-width: 768px) {
+  #cta .content {
+    width: 31.25rem;
+  }
+}
+
+@media only screen and (max-width: 590px) {
+  #cta .content {
+    width: 18.5rem;
+  }
+
+  #cta h1 {
+    padding-top: 7.125rem;
+    padding-bottom: 1.625rem;
+    font-size: 1.875rem;
+  }
+
+  #cta p {
+    padding-bottom: 3.875rem;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+/* Features */
+
+.feature {
+  height: 31.25rem;
+  position: relative;
+}
+
+.background-image.soup {
+  background-image: url('../images/soup.jpg');
+}
+
+.background-image.salad {
+  background-image: url('../images/salad.jpg');
+}
+
+.feature.fire .information-square {
+  background-color: rgba(173, 74, 226, 0.9);
+}
+
+.background-image.cookies {
+  background-image: url('../images/cookies.jpg');
+}
+
+.feature a {
+  transition: color .25s;
+}
+
+.feature a:hover {
+  color: #d0caca
+}

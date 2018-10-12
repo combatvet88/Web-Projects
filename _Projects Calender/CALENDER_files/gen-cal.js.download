@@ -1,0 +1,326 @@
+/*
+ * Main script for generating PRO Intensive Calendar pages.
+ *
+ * For technical support, please contact:
+ *   s d h u n t  {AT}  g m a i l  =DOT=  c o m
+ */
+
+// Pretty print objects
+const ppJson = json => JSON.stringify(json, null, 2);
+
+// configure how many entries in the start-date dropdown
+const priorWeeks = 10;
+const futureWeeks = 2;
+
+// global hook
+ccProIntCal = {};
+
+let ud;
+let opt;
+let dateArray;
+let startDateStr;
+let startDate;
+let postDate;
+
+// initialize the page once loaded
+ccProIntCal.init = () => {
+  ud = ccProIntCal.unitData;
+  dateArray = gimmeSomeTuesdays();
+  startDateStr = getQueryStringParameter('cohortDate') || dateArray[0];
+  startDate = parseDate(startDateStr);
+  postDate = computePostDate(startDate, ud);
+
+  // console.log(`Unit Data: ${ppJson(ud)}`);
+  // console.log(`Dates: ${dateArray}`);
+  // console.log(`Start Date String: ${startDateStr}`);
+  // console.log(`Start Date: ${startDate}`);
+  // console.log(` Post Date: ${postDate}`);
+
+  hydrateTitle();
+  hydrateCalendar();
+  appendFooter();
+};
+
+const getFirstTuesday = () => {
+  const TUESDAY = 2;
+  let day = new Date();
+  while (day.getDay() !== TUESDAY) {
+    day = incDate(day, 1);
+  }
+  return incDate(day, -7 * priorWeeks);
+}
+
+const dateFmt = d => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+const gimmeSomeTuesdays = () => {
+    const totalWeeks = priorWeeks + 1 + futureWeeks;
+    const days = [];
+    let tuesday = getFirstTuesday();
+    for (let i = 0; i < totalWeeks; i++) {
+      days.push(dateFmt(tuesday));
+      tuesday = incDate(tuesday, 7);
+    }
+    return days;
+}
+
+const getQueryStringParameter = paramName => {
+  const queryString = window.location.search.substring(1);
+  const params = queryString.split('&');
+  for (let i = 0; i < params.length; i++) {
+    let keyVal = params[i].split('=');
+    if (keyVal[0] == paramName) {
+      return keyVal[1];
+    }
+  }
+}
+
+const computePostDate = (date, ud) => {
+  let total = 0;
+  for (let unum = 1; unum <= ud.nunits; unum++) {
+    total += ud.units[unum].ndays;
+  }
+  return incDate(date, total);
+};
+
+const hydrateTitle = () => {
+  const d = `${startDate.getMonth()+1}/${startDate.getDate()}`;
+  $('title').text(`${ud.id}: ${d} Cohort`);
+
+  $( '#title' ).append([
+    `<h1> ${ud.title} </h1>`,
+  ]);
+};
+
+const parseDate = datestr => {
+  const [year, month, day] = datestr.split('-');
+  return new Date(year, month-1, day);
+};
+
+const incDate = (date, ndays) => new Date(
+  date.getFullYear(),
+  date.getMonth(),
+  date.getDate() + ndays,
+);
+
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+const shortMonthNames = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const fullDayNames = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
+const dateSuffix = {
+  1:'st', 2:'nd', 3:'rd', 21:'st', 22:'nd', 23:'rd', 31:'st',
+};
+
+const makeDate = dstr => {
+  const date = parseDate(dstr);
+  const mon = monthNames[date.getMonth()];
+  const day = date.getDate();
+  const sfx = dateSuffix[day] || 'th';
+  const year = date.getFullYear();
+  const md = `${date.getMonth() + 1}/${date.getDate()}`
+  // 'January 16th, 2018 Cohort (1/16)',
+  // `${mon} ${day}${sfx}, ${year} Cohort (${md})`
+  return `${mon} ${day}${sfx}, ${year}`;
+
+};
+
+const buildDropdown = () => {
+  const select = $( '<select></select>' );
+  dateArray.forEach(dstr => {
+    const sel = dstr === startDateStr ? ' selected' : '';
+    const o = $( `<option value="${dstr}"${sel}>${makeDate(dstr)}</option>` );
+    select.append(o);
+  });
+
+  // event handler to insert the selected cohort date into the query string
+  select.change(function () {
+    window.location.search = `?cohortDate=${$(this).val()}`;
+  });
+
+  return select;
+};
+
+const cohortSelection = () => {
+  const dropDiv = $( '<div class="cohort-select"></div>' );
+  const h4 = $( '<h4>Pro Intensive start date :</h4>' );
+
+  dropDiv.append(h4);
+  dropDiv.append(buildDropdown());
+  return dropDiv;
+};
+
+const unitNote = (unit, continued, name) => {
+  const noteDiv = $( '<div class="note"></div>' );
+  noteDiv.append(`<h5>Unit ${unit}</h5>`);
+  if (continued) {
+    noteDiv.append(`<h5 class="smaller">(cont'd)</h5>`);
+  }
+  noteDiv.append(`<p>${name}</p>`);
+  return noteDiv;
+};
+
+const isBefore = (dateA, dateB) => {
+  const yA = dateA.getFullYear();
+  const yB = dateB.getFullYear();
+  if (yA < yB) {
+    return true;
+  }
+  if (yA > yB) {
+    return false;
+  }
+
+  const mA = dateA.getMonth();
+  const mB = dateB.getMonth();
+  if (mA < mB) {
+    return true;
+  }
+  if (mA > mB) {
+    return false;
+  }
+
+  return dateA.getDate() < dateB.getDate();
+};
+
+const sameDate = (dateA, dateB) =>
+  dateA.getFullYear() === dateB.getFullYear() &&
+  dateA.getMonth() === dateB.getMonth() &&
+  dateA.getDate() === dateB.getDate();
+
+const thisWeek = (first, today) => {
+  // brute force approach
+  let d = first;
+  for (let i=0; i<7; i++) {
+    if (sameDate(d, today)) {
+      return true;
+    }
+    d = incDate(d, 1);
+  }
+  return false;
+};
+
+const shortDate = d => {
+  // <h6>Tue, Jan&nbsp;16</h6>
+  const day = dayNames[d.getDay()];
+  const mon = shortMonthNames[d.getMonth()];
+  const date = d.getDate();
+  return $(`<h6>${day}, ${mon}&nbsp;${date}</h6>`);
+};
+
+const whichDay = n => {
+  return $(`<h6 class="daynum">Day ${n}</h6>`);
+};
+
+const lbreak = stuff =>
+  stuff.map(x =>
+    x.startsWith('*') ? `<span class="reviewable">${x}</span>` : `${x}`
+  ).join(`<br />`);
+
+const dayBox = (d, isToday, num, stuff) => {
+  const dayDiv = $( '<div class="day"></div>');
+  dayDiv.append(shortDate(d));
+  dayDiv.append(whichDay(num));
+  dayDiv.append(lbreak(stuff));
+
+  if (isToday) {
+    dayDiv.addClass('today');
+  }
+  return dayDiv;
+};
+
+const dayBlank = () => {
+  return $('<div class="day blank"></div>');
+};
+
+const addUnitToCal = (div, unum, data, start) => {
+  const today = new Date();
+
+  let weekDiv = $('<div class="week"></div>');
+  let daysDiv = $('<div class="days"></div>');
+  let d = start;
+  let daysAdded = 0;
+  let thisWeek = false;
+  let isToday = false;
+
+  for (let day = 1; day <= data.ndays; day++) {
+    // console.log(`Unit ${unum}, day ${day}`);
+    isToday = sameDate(d, today);
+    thisWeek = thisWeek || isToday;
+
+    if (daysAdded % 7 === 0) {
+      // start of a new row
+      if (!daysAdded) {
+        weekDiv.addClass('vspacer');
+      }
+      weekDiv.append(unitNote(unum, daysAdded, data.name));
+      weekDiv.append(daysDiv);
+    }
+
+    // here we add a single day
+    let dayNum = day;
+    let dayStuff;
+    do {
+      dayStuff = data.days[dayNum];
+      dayNum--;
+    } while (!dayStuff);
+
+    daysDiv.append(dayBox(d, isToday, day, dayStuff));
+
+    if (daysAdded % 7 === 6) {
+      // end of a row
+      if (isBefore(d, today)) {
+        weekDiv.addClass('past');
+      } else if (thisWeek) {
+        weekDiv.addClass('current');
+      }
+      div.append(weekDiv);
+      weekDiv = $('<div class="week"></div>');
+      daysDiv = $('<div class="days"></div>');
+      thisWeek = false;
+    }
+
+    daysAdded++;
+    d = incDate(d, 1);
+  }
+
+  let addPartial = false;
+  while (daysAdded % 7) {
+    addPartial = true;
+    daysDiv.append(dayBlank());
+    daysAdded++;
+  }
+  if (addPartial) {
+    if (sameDate(d, today) || isBefore(d, today)) {
+      weekDiv.addClass('past');
+    } else if (thisWeek) {
+      weekDiv.addClass('current');
+    }
+    div.append(weekDiv);
+  }
+
+  return incDate(start, data.ndays);
+};
+
+const hydrateCalendar = () => {
+  const calDiv = $( '#calendar' );
+  calDiv.append(cohortSelection(startDate));
+
+  let d = startDate;
+  for (let unum = 1; unum <= ud.nunits; unum++) {
+    d = addUnitToCal(calDiv, unum, ud.units[unum], d);
+  }
+};
+
+const appendFooter = () => {
+  const footer = $('<footer></footer>');
+  footer.append(`<a href="./index.html">PRO Intensive Calendars</a>`);
+  footer.append(`<i>Created by Simon Hunt</i>`);
+  footer.appendTo('body');
+};
